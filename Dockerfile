@@ -1,7 +1,7 @@
 # 构建阶段：Node.js 22
 FROM node:22-alpine AS build
 WORKDIR /app
-ARG BUILD_MODE=stage
+ARG BUILD_MODE=prod
 COPY package*.json ./
 RUN npm install --registry=https://registry.npmmirror.com
 COPY . .
