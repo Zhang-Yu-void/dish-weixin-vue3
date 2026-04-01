@@ -27,6 +27,8 @@
 ARG NODE_IMAGE=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/node-20:latest
 ARG NGINX_IMAGE=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/nginx-latest:latest
 FROM ${NODE_IMAGE} AS builder
+# 与 vite/plugins/auto-import.ts 配合：跳过重写 auto-imports.d.ts，避免非 root 用户对 root 属主文件 EACCES
+ENV DOCKER_BUILD=1
 # 设置工作目录
 WORKDIR /build
 # 配置淘宝npm镜像源（加速依赖安装）
