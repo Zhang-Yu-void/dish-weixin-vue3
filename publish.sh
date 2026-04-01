@@ -6,6 +6,9 @@ REGISTRY="${REGISTRY:-crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com}
 NAMESPACE="${NAMESPACE:-hardo}"
 IMAGE="${IMAGE:-vue-front}"
 LAST_TAG_FILE="${LAST_TAG_FILE:-.docker_last_tag}"
+# 默认国内 DaoCloud 拉基础镜像，避免直连 Docker Hub 超时；需官方镜像时：NODE_IMAGE=node:20-alpine NGINX_IMAGE=nginx:alpine ./publish.sh
+NODE_IMAGE="${NODE_IMAGE:-docker.m.daocloud.io/library/node:20-alpine}"
+NGINX_IMAGE="${NGINX_IMAGE:-docker.m.daocloud.io/library/nginx:alpine}"
 
 print_usage() {
   cat <<'EOF'
@@ -22,7 +25,8 @@ Behavior:
 
 Environment overrides:
   REGISTRY, NAMESPACE, IMAGE, LAST_TAG_FILE
-  NODE_IMAGE, NGINX_IMAGE  (when Docker Hub / auth.docker.io is unreachable, e.g. use DaoCloud mirror)
+  NODE_IMAGE, NGINX_IMAGE  (default: DaoCloud mirror; use node:20-alpine / nginx:alpine for Docker Hub)
+  DOCKER_PLATFORM  (default linux/amd64 so ECS can pull; set linux/arm64 on Apple Silicon if you only test locally)
 
 Examples:
   ./publish.sh -t 1.2.3
@@ -30,7 +34,7 @@ Examples:
   REGISTRY=xxx NAMESPACE=yyy IMAGE=zzz ./publish.sh
   # Example: crpi-.../hardo/vue-front:1.2.3
   REGISTRY=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com NAMESPACE=hardo IMAGE=vue-front ./publish.sh -t 1.2.3
-  NODE_IMAGE=docker.m.daocloud.io/library/node:20-alpine NGINX_IMAGE=docker.m.daocloud.io/library/nginx:alpine ./publish.sh
+  NODE_IMAGE=node:20-alpine NGINX_IMAGE=nginx:alpine ./publish.sh
 EOF
 }
 
@@ -91,12 +95,26 @@ else
 fi
 
 FULL_IMAGE="${REGISTRY}/${NAMESPACE}/${IMAGE}:${TAG}"
-echo "Publishing image: ${FULL_IMAGE}"
+DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
 
-NODE_IMAGE="${NODE_IMAGE:-node:20-alpine}"
-NGINX_IMAGE="${NGINX_IMAGE:-nginx:alpine}"
+print_image_refs() {
+  echo ""
+  echo "========== Image version (copy below) =========="
+  echo "TAG=${TAG}"
+  echo "FULL_IMAGE=${FULL_IMAGE}"
+  echo "DOCKER_PLATFORM=${DOCKER_PLATFORM}"
+  echo "NODE_IMAGE=${NODE_IMAGE}"
+  echo "NGINX_IMAGE=${NGINX_IMAGE}"
+  echo "docker pull ${FULL_IMAGE}"
+  echo "================================================"
+  echo ""
+}
+
+echo "Publishing image: ${FULL_IMAGE}"
+print_image_refs
 
 docker build \
+  --platform "${DOCKER_PLATFORM}" \
   --build-arg NODE_IMAGE="${NODE_IMAGE}" \
   --build-arg NGINX_IMAGE="${NGINX_IMAGE}" \
   --build-arg APP_VERSION="${TAG}" \
@@ -107,4 +125,5 @@ if [[ "${AUTO_TAG_MODE}" == "1" ]]; then
   echo "${TAG}" > "${LAST_TAG_FILE}"
 fi
 
-echo "Done. Published: ${FULL_IMAGE}"
+echo "Done. Published successfully."
+print_image_refs
