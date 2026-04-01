@@ -25,6 +25,8 @@
 # NODE_IMAGE=docker.m.daocloud.io/library/node:20-alpine \
 # NGINX_IMAGE=docker.m.daocloud.io/library/nginx:alpine \
 # docker build --build-arg NODE_IMAGE=... --build-arg NGINX_IMAGE=... -t ...
+# 默认用官方镜像，便于在能访问 Docker Hub 的环境直接 `docker build`。
+# 国内网络拉不动时由 publish.sh 传入：--build-arg NODE_IMAGE=... NGINX_IMAGE=...
 ARG NODE_IMAGE=node:20-alpine
 ARG NGINX_IMAGE=nginx:alpine
 FROM ${NODE_IMAGE} AS builder
