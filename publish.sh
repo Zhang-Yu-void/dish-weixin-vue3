@@ -8,7 +8,7 @@ IMAGE="${IMAGE:-vue-front}"
 LAST_TAG_FILE="${LAST_TAG_FILE:-.docker_last_tag}"
 # 默认从北京 ACR（hardo 命名空间备份）拉基础镜像；需 Docker Hub 时：
 # NODE_IMAGE=node:20-alpine NGINX_IMAGE=nginx:alpine ./publish.sh
-NODE_IMAGE="${NODE_IMAGE:-crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/node-22:latest}"
+NODE_IMAGE="${NODE_IMAGE:-crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/node-20:latest}"
 NGINX_IMAGE="${NGINX_IMAGE:-crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/nginx-latest:latest}"
 
 print_usage() {
@@ -26,7 +26,7 @@ Behavior:
 
 Environment overrides:
   REGISTRY, NAMESPACE, IMAGE, LAST_TAG_FILE
-  NODE_IMAGE, NGINX_IMAGE  (default: Beijing ACR hardo/node-22 & hardo/nginx-latest; override for Docker Hub)
+  NODE_IMAGE, NGINX_IMAGE  (default: Beijing ACR hardo/node-20 & hardo/nginx-latest; override for Docker Hub)
   DOCKER_PLATFORM  (default linux/amd64 so ECS can pull; set linux/arm64 on Apple Silicon if you only test locally)
 
 Examples:

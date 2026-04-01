@@ -21,10 +21,10 @@
 # docker push ${REGISTRY}/${NAMESPACE}/${IMAGE}:${TAG}
 
 # ===================== 第一阶段：构建阶段 =====================
-# 默认从北京 ACR 拉取（与 sync-beijing-images.sh 备份一致）；需其他源可覆盖：
+# 默认从北京 ACR 拉取（构建阶段 node 来自 alinux3/node:20.16 同步的 hardo/node-20）；需其他源可覆盖：
 # docker build --build-arg NODE_IMAGE=node:20-alpine --build-arg NGINX_IMAGE=nginx:alpine ...
 # 构建前请 docker login crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com
-ARG NODE_IMAGE=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/node-22:latest
+ARG NODE_IMAGE=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/node-20:latest
 ARG NGINX_IMAGE=crpi-xuhg3aumkquvtuvn.cn-beijing.personal.cr.aliyuncs.com/hardo/nginx-latest:latest
 FROM ${NODE_IMAGE} AS builder
 # 设置工作目录
