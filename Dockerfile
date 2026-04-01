@@ -49,6 +49,8 @@ ARG APP_VERSION=1.0.0
 LABEL org.opencontainers.image.version="${APP_VERSION}"
 # 复制构建好的dist文件到Nginx
 COPY --from=builder /build/dist /usr/share/nginx/html
+# 覆盖默认站点配置，启用前端路由与后端代理
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 # 暴露端口
 EXPOSE 80
 # 启动Nginx
