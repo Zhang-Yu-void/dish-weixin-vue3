@@ -1,7 +1,14 @@
 <template>
   <div>
-    <el-dialog title="添加选项" v-model="open" width="800px" :close-on-click-modal="false" :modal-append-to-body="false"
-      @open="onOpen" @close="onClose">
+    <el-dialog
+      title="添加选项"
+      v-model="open"
+      width="800px"
+      :close-on-click-modal="false"
+      :modal-append-to-body="false"
+      @open="onOpen"
+      @close="onClose"
+    >
       <el-form ref="treeNodeForm" :model="formData" :rules="rules" label-width="100px">
         <el-col :span="24">
           <el-form-item label="选项名" prop="label">
@@ -13,11 +20,15 @@
             <el-input v-model="formData.value" placeholder="请输入选项值" clearable>
               <template #append>
                 <el-select v-model="dataType" :style="{ width: '100px' }">
-                  <el-option v-for="(item, index) in dataTypeOptions" :key="index" :label="item.label" :value="item.value"
-                    :disabled="item.disabled" />
+                  <el-option
+                    v-for="(item, index) in dataTypeOptions"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value"
+                    :disabled="item.disabled"
+                  />
                 </el-select>
               </template>
-
             </el-input>
           </el-form-item>
         </el-col>
@@ -32,9 +43,9 @@
   </div>
 </template>
 <script setup lang="ts">
-const open = defineModel()
-const emit = defineEmits(['confirm'])
-const formData = ref({
+const open = defineModel<boolean>({ default: false })
+const emit = defineEmits<{ confirm: [data: { label: string; value: string | number; id: number }] }>()
+const formData = ref<{ label?: string; value?: string | number; id?: number }>({
   label: undefined,
   value: undefined
 })
@@ -87,8 +98,8 @@ function handelConfirm(): void {
     if (dataType.value === 'number') {
       formData.value.value = parseFloat(String(formData.value.value))
     }
-    formData.value.id = id.value++
-    emit('commit', formData.value)
+    const node = { label: formData.value.label!, value: formData.value.value!, id: id.value++ }
+    emit('confirm', node)
     onClose()
   })
 }

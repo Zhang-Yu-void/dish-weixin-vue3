@@ -1,6 +1,13 @@
 <template>
   <div>
-    <el-popover ref="noticePopover" placement="bottom-end" :width="320" trigger="manual" v-model:visible="noticeVisible" popper-class="notice-popover">
+    <el-popover
+      ref="noticePopover"
+      placement="bottom-end"
+      :width="320"
+      trigger="click"
+      v-model:visible="noticeVisible"
+      popper-class="notice-popover"
+    >
       <!-- 弹出内容 -->
       <div class="notice-header">
         <span class="notice-title">通知公告</span>
@@ -10,11 +17,17 @@
         <el-icon class="is-loading"><Loading /></el-icon> 加载中...
       </div>
       <div v-else-if="noticeList.length === 0" class="notice-empty">
-        <el-icon style="font-size:24px;display:block;margin-bottom:6px;"><Postcard /></el-icon>
+        <el-icon style="font-size: 24px; display: block; margin-bottom: 6px"><Postcard /></el-icon>
         暂无公告
       </div>
       <div v-else>
-        <div v-for="item in noticeList" :key="item.noticeId" class="notice-item" :class="{ 'is-read': item.isRead }" @click="previewNotice(item)">
+        <div
+          v-for="item in noticeList"
+          :key="item.noticeId"
+          class="notice-item"
+          :class="{ 'is-read': item.isRead }"
+          @click="previewNotice(item)"
+        >
           <el-tag size="small" :type="item.noticeType === '1' ? 'warning' : 'success'" class="notice-tag">
             {{ item.noticeType === '1' ? '通知' : '公告' }}
           </el-tag>
@@ -25,7 +38,11 @@
 
       <!-- 触发器 -->
       <template #reference>
-        <div class="right-menu-item hover-effect notice-trigger" @mouseenter="onNoticeEnter" @mouseleave="onNoticeLeave">
+        <div
+          class="right-menu-item hover-effect notice-trigger"
+          @mouseenter="onNoticeEnter"
+          @mouseleave="onNoticeLeave"
+        >
           <svg-icon icon-class="bell" />
           <span v-if="unreadCount > 0" class="notice-badge">{{ unreadCount }}</span>
         </div>
@@ -33,7 +50,13 @@
     </el-popover>
 
     <!-- 预览弹窗 -->
-    <el-dialog v-model="previewVisible" :title="previewTitle" width="680px" append-to-body class="notice-preview-dialog">
+    <el-dialog
+      v-model="previewVisible"
+      :title="previewTitle"
+      width="680px"
+      append-to-body
+      class="notice-preview-dialog"
+    >
       <div class="notice-preview-meta">
         <el-tag size="small" :type="previewNoticeType === '1' ? 'warning' : 'success'">
           {{ previewNoticeType === '1' ? '通知' : '公告' }}
@@ -59,7 +82,7 @@ interface PopperElement extends HTMLElement {
   _noticeBound?: boolean
 }
 
-const noticePopover = ref<InstanceType<typeof import('element-plus')['ElPopover']> | null>(null)
+const noticePopover = ref<InstanceType<(typeof import('element-plus'))['ElPopover']> | null>(null)
 const noticeList = ref<SysNotice[]>([])
 const unreadCount = ref<number>(0)
 const noticeLoading = ref<boolean>(false)
@@ -75,12 +98,15 @@ const previewCreateTime = ref<string>('')
 // 加载顶部公告列表
 function loadNoticeTop(): void {
   noticeLoading.value = true
-  listNoticeTop().then(res => {
-    noticeList.value = res.data || []
-    unreadCount.value = res.unreadCount !== undefined ? res.unreadCount : noticeList.value.filter((n: SysNotice) => !n.isRead).length
-  }).finally(() => {
-    noticeLoading.value = false
-  })
+  listNoticeTop()
+    .then((res) => {
+      noticeList.value = res.data || []
+      unreadCount.value =
+        res.unreadCount !== undefined ? res.unreadCount : noticeList.value.filter((n: SysNotice) => !n.isRead).length
+    })
+    .finally(() => {
+      noticeLoading.value = false
+    })
 }
 
 onMounted(() => loadNoticeTop())
@@ -95,7 +121,9 @@ function onNoticeEnter(): void {
       popper._noticeBound = true
       popper.addEventListener('mouseenter', () => clearTimeout(noticeLeaveTimer.value ?? undefined))
       popper.addEventListener('mouseleave', () => {
-        noticeLeaveTimer.value = setTimeout(() => { noticeVisible.value = false }, 100)
+        noticeLeaveTimer.value = setTimeout(() => {
+          noticeVisible.value = false
+        }, 100)
       })
     }
   })
@@ -103,7 +131,9 @@ function onNoticeEnter(): void {
 
 // 鼠标离开铃铛区域
 function onNoticeLeave(): void {
-  noticeLeaveTimer.value = setTimeout(() => { noticeVisible.value = false }, 150)
+  noticeLeaveTimer.value = setTimeout(() => {
+    noticeVisible.value = false
+  }, 150)
 }
 
 // 预览公告详情
@@ -114,13 +144,13 @@ function previewNotice(item: SysNotice): void {
     if (idx !== -1) noticeList.value[idx] = { ...item, isRead: true }
     unreadCount.value = Math.max(0, unreadCount.value - 1)
   }
-  getNotice(item.noticeId!).then(res => {
+  getNotice(item.noticeId!).then((res) => {
     const notice = res.data as SysNotice
-    previewTitle.value = notice.noticeTitle
-    previewContent.value = notice.noticeContent
-    previewNoticeType.value = notice.noticeType
-    previewCreateBy.value = notice.createBy
-    previewCreateTime.value = notice.createTime
+    previewTitle.value = notice.noticeTitle || ''
+    previewContent.value = notice.noticeContent || ''
+    previewNoticeType.value = notice.noticeType || ''
+    previewCreateBy.value = notice.createBy || ''
+    previewCreateTime.value = notice.createTime || ''
     previewVisible.value = true
   })
 }
@@ -139,7 +169,11 @@ function markAllRead(): void {
 .notice-trigger {
   position: relative;
   transform: translateX(-6px);
-  .svg-icon { width: 1.2em; height: 1.2em; vertical-align: -0.2em; }
+  .svg-icon {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.2em;
+  }
   .notice-badge {
     position: absolute;
     top: 7px;
@@ -157,7 +191,9 @@ function markAllRead(): void {
     pointer-events: none;
   }
 }
-.notice-popover { padding: 0 !important; }
+.notice-popover {
+  padding: 0 !important;
+}
 .notice-popover .notice-header {
   display: flex;
   align-items: center;
@@ -175,7 +211,9 @@ function markAllRead(): void {
   font-weight: normal;
   cursor: pointer;
 }
-.notice-popover .notice-mark-all:hover { color: #2b7cc1; }
+.notice-popover .notice-mark-all:hover {
+  color: #2b7cc1;
+}
 .notice-popover .notice-loading,
 .notice-popover .notice-empty {
   padding: 24px;
@@ -193,12 +231,22 @@ function markAllRead(): void {
   cursor: pointer;
   transition: background 0.15s;
 }
-.notice-popover .notice-item:last-child { border-bottom: none; }
-.notice-popover .notice-item:hover { background: #f7f9fb; }
+.notice-popover .notice-item:last-child {
+  border-bottom: none;
+}
+.notice-popover .notice-item:hover {
+  background: #f7f9fb;
+}
 .notice-popover .notice-item.is-read .notice-tag,
 .notice-popover .notice-item.is-read .notice-item-title,
-.notice-popover .notice-item.is-read .notice-item-date { opacity: 0.45; filter: grayscale(1); color: #999; }
-.notice-popover .notice-tag { flex-shrink: 0; }
+.notice-popover .notice-item.is-read .notice-item-date {
+  opacity: 0.45;
+  filter: grayscale(1);
+  color: #999;
+}
+.notice-popover .notice-tag {
+  flex-shrink: 0;
+}
 .notice-popover .notice-item-title {
   flex: 1;
   font-size: 12px;
@@ -215,7 +263,9 @@ function markAllRead(): void {
 </style>
 
 <style>
-.notice-preview-dialog .el-dialog__body { padding: 0 10px 10px; }
+.notice-preview-dialog .el-dialog__body {
+  padding: 0 10px 10px;
+}
 .notice-preview-dialog .notice-preview-meta {
   display: flex;
   align-items: center;
@@ -224,7 +274,11 @@ function markAllRead(): void {
   font-size: 12px;
   color: #888;
 }
-.notice-preview-dialog .notice-preview-info { display: flex; align-items: center; gap: 4px; }
+.notice-preview-dialog .notice-preview-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .notice-preview-dialog .notice-preview-divider {
   height: 1px;
   background: linear-gradient(to right, transparent, #e2e8f0, transparent);
@@ -236,7 +290,15 @@ function markAllRead(): void {
   color: #2d3748;
   word-break: break-word;
 }
-.notice-preview-dialog .notice-preview-content img { max-width: 100%; border-radius: 4px; }
-.notice-preview-dialog .notice-preview-content p { margin: 0 0 1em; }
-.notice-preview-dialog .notice-preview-content a { color: var(--el-color-primary); text-decoration: underline; }
+.notice-preview-dialog .notice-preview-content img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+.notice-preview-dialog .notice-preview-content p {
+  margin: 0 0 1em;
+}
+.notice-preview-dialog .notice-preview-content a {
+  color: var(--el-color-primary);
+  text-decoration: underline;
+}
 </style>

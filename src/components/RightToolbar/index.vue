@@ -1,21 +1,34 @@
 <template>
   <div class="top-right-btn" :style="style">
     <el-row>
-      <el-tooltip class="item" effect="dark" :content="showSearch ? '隐藏搜索' : '显示搜索'" placement="top" v-if="search">
+      <el-tooltip
+        class="item"
+        effect="dark"
+        :content="showSearch ? '隐藏搜索' : '显示搜索'"
+        placement="top"
+        v-if="search"
+      >
         <el-button circle icon="Search" @click="toggleSearch()" />
       </el-tooltip>
       <el-tooltip class="item" effect="dark" content="刷新" placement="top">
         <el-button circle icon="Refresh" @click="refresh()" />
       </el-tooltip>
       <el-tooltip class="item" effect="dark" content="显隐列" placement="top" v-if="Object.keys(columns).length > 0">
-        <el-button circle icon="Menu" @click="showColumn()" v-if="showColumnsType == 'transfer'"/>
-        <el-dropdown trigger="click" :hide-on-click="false" style="padding-left: 12px" v-if="showColumnsType == 'checkbox'">
+        <el-button circle icon="Menu" @click="showColumn()" v-if="showColumnsType == 'transfer'" />
+        <el-dropdown
+          trigger="click"
+          :hide-on-click="false"
+          style="padding-left: 12px"
+          v-if="showColumnsType == 'checkbox'"
+        >
           <el-button circle icon="Menu" />
           <template #dropdown>
             <el-dropdown-menu>
               <!-- 全选/反选 按钮 -->
               <el-dropdown-item>
-                <el-checkbox :indeterminate="isIndeterminate" v-model="isChecked" @change="toggleCheckAll"> 列展示 </el-checkbox>
+                <el-checkbox :indeterminate="isIndeterminate" v-model="isChecked" @change="toggleCheckAll">
+                  列展示
+                </el-checkbox>
               </el-dropdown-item>
               <div class="check-line"></div>
               <template v-for="(item, key) in columns" :key="item.key">
@@ -29,18 +42,17 @@
       </el-tooltip>
     </el-row>
     <el-dialog :title="title" v-model="open" append-to-body>
-      <el-transfer
-        :titles="['显示', '隐藏']"
-        v-model="value"
-        :data="transferData"
-        @change="dataChange"
-      ></el-transfer>
+      <el-transfer :titles="['显示', '隐藏']" v-model="value" :data="transferData" @change="dataChange"></el-transfer>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { CheckboxValueType } from 'element-plus'
+import type { TransferKey } from 'element-plus'
 import type { TableShowColumns } from '@/types/api/common'
+
+type ColumnsRecord = Record<string, TableShowColumns>
 
 const props = defineProps({
   /* 是否显示检索条件 */
@@ -61,13 +73,13 @@ const props = defineProps({
   /* 显隐列类型（transfer穿梭框、checkbox复选框） */
   showColumnsType: {
     type: String,
-    default: "checkbox"
+    default: 'checkbox'
   },
   /* 右外边距 */
   gutter: {
     type: Number,
     default: 10
-  },
+  }
 })
 
 const emits = defineEmits(['update:showSearch', 'queryTable'])
@@ -75,7 +87,7 @@ const emits = defineEmits(['update:showSearch', 'queryTable'])
 // 显隐数据
 const value = ref<number[]>([])
 // 弹出层标题
-const title = ref("显示/隐藏")
+const title = ref('显示/隐藏')
 // 是否显示弹出层
 const open = ref(false)
 
@@ -89,16 +101,28 @@ const style = computed(() => {
 
 // 是否全选/半选 状态
 const isChecked = computed({
-  get: () => Array.isArray(props.columns) ? props.columns.every((col: TableShowColumns) => col.visible) : Object.values(props.columns).every((col) => (col as TableShowColumns).visible),
+  get: () =>
+    Array.isArray(props.columns)
+      ? props.columns.every((col: TableShowColumns) => col.visible)
+      : Object.values(props.columns).every((col) => (col as TableShowColumns).visible),
   set: () => {}
 })
-const isIndeterminate = computed(() => Array.isArray(props.columns) ? props.columns.some((col: TableShowColumns) => col.visible) && !isChecked.value : Object.values(props.columns).some((col) => (col as TableShowColumns).visible) && !isChecked.value)
-const transferData = computed(() => Array.isArray(props.columns) ? props.columns.map((item: TableShowColumns, index: number) => ({ key: index, label: item.label })) : Object.keys(props.columns).map((key, index) => ({ key: index, label: props.columns[key].label })))
+const isIndeterminate = computed(() =>
+  Array.isArray(props.columns)
+    ? props.columns.some((col: TableShowColumns) => col.visible) && !isChecked.value
+    : Object.values(props.columns).some((col) => (col as TableShowColumns).visible) && !isChecked.value
+)
+const columnsRecord = computed(() => props.columns as ColumnsRecord)
+const transferData = computed(() =>
+  Array.isArray(props.columns)
+    ? (props.columns as TableShowColumns[]).map((item, index) => ({ key: index, label: item.label }))
+    : Object.keys(columnsRecord.value).map((key, index) => ({ key: index, label: columnsRecord.value[key].label }))
+)
 
 // 搜索
-const { proxy } = getCurrentInstance()!
+const proxy = useProxy()
 function toggleSearch(): void {
-  let el: HTMLElement | null = proxy!.$el
+  let el: HTMLElement | null = proxy.$el
   let formEl: HTMLElement | null = null
   while ((el = el!.parentElement) && el !== document.body) {
     if ((formEl = el.querySelector('.el-form'))) break
@@ -114,14 +138,19 @@ function animateSearch(el: HTMLElement, isHide: boolean): void {
   if (isHide) {
     Object.assign(el.style, { maxHeight: el.scrollHeight + 'px', opacity: '1', transition: TRANSITION })
     requestAnimationFrame(() => Object.assign(el.style, { maxHeight: '0', opacity: '0' }))
-    setTimeout(() => { emits('update:showSearch', false); clear() }, DURATION)
+    setTimeout(() => {
+      emits('update:showSearch', false)
+      clear()
+    }, DURATION)
   } else {
     emits('update:showSearch', true)
     nextTick(() => {
       Object.assign(el.style, { maxHeight: '0', opacity: '0' })
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        Object.assign(el.style, { transition: TRANSITION, maxHeight: el.scrollHeight + 'px', opacity: '1' })
-      }))
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          Object.assign(el.style, { transition: TRANSITION, maxHeight: el.scrollHeight + 'px', opacity: '1' })
+        })
+      )
       setTimeout(clear, DURATION)
     })
   }
@@ -129,19 +158,20 @@ function animateSearch(el: HTMLElement, isHide: boolean): void {
 
 // 刷新
 function refresh(): void {
-  emits("queryTable")
+  emits('queryTable')
 }
 
 // 右侧列表元素变化
-function dataChange(data: number[]): void {
+function dataChange(data: TransferKey[]): void {
+  const hiddenKeys = data.map((k) => Number(k))
   if (Array.isArray(props.columns)) {
     for (let item in props.columns) {
       const key = props.columns[item].key
-      props.columns[item].visible = !data.includes(parseInt(key))
+      props.columns[item].visible = !hiddenKeys.includes(parseInt(key))
     }
   } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      props.columns[key].visible = !data.includes(index)
+    Object.keys(columnsRecord.value).forEach((key, index) => {
+      columnsRecord.value[key].visible = !hiddenKeys.includes(index)
     })
   }
 }
@@ -151,7 +181,7 @@ function showColumn(): void {
   open.value = true
 }
 
-if (props.showColumnsType == "transfer") {
+if (props.showColumnsType == 'transfer') {
   // transfer穿梭显隐列初始默认隐藏列
   if (Array.isArray(props.columns)) {
     for (let item in props.columns) {
@@ -160,8 +190,8 @@ if (props.showColumnsType == "transfer") {
       }
     }
   } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      if (props.columns[key].visible === false) {
+    Object.keys(columnsRecord.value).forEach((key, index) => {
+      if (columnsRecord.value[key].visible === false) {
         value.value.push(index)
       }
     })
@@ -169,14 +199,15 @@ if (props.showColumnsType == "transfer") {
 }
 
 // 单勾选
-function checkboxChange(event: boolean, key: string): void {
+function checkboxChange(event: CheckboxValueType, key: string): void {
+  const checked = event === true
   if (Array.isArray(props.columns)) {
     const col = props.columns.filter((item: any) => item.key == key)[0]
     if (col) {
-      col.visible = event
+      col.visible = checked
     }
   } else {
-    props.columns[key].visible = event
+    columnsRecord.value[key].visible = checked
   }
 }
 
@@ -191,7 +222,7 @@ function toggleCheckAll(): void {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 :deep(.el-transfer__button) {
   border-radius: 50%;
   display: block;

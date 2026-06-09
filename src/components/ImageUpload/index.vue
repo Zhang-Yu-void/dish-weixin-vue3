@@ -28,35 +28,27 @@
         大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b>
       </template>
       <template v-if="fileType">
-        格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b>
+        格式为 <b style="color: #f56c6c">{{ fileType.join('/') }}</b>
       </template>
       的文件
     </div>
 
-    <el-dialog
-      v-model="dialogVisible"
-      title="预览"
-      width="800px"
-      append-to-body
-    >
-      <img
-        :src="dialogImageUrl"
-        style="display: block; max-width: 100%; margin: 0 auto"
-      />
+    <el-dialog v-model="dialogVisible" title="预览" width="800px" append-to-body>
+      <img :src="dialogImageUrl" style="display: block; max-width: 100%; margin: 0 auto" />
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getToken } from "@/utils/auth"
-import { isExternal } from "@/utils/validate"
+import { getToken } from '@/utils/auth'
+import { isExternal } from '@/utils/validate'
 import Sortable from 'sortablejs'
 import type { UploadFileResult } from '@/types/api/common'
 
 interface UploadImageItem {
-  uid?: number | string;
-  name: string;
-  url: string;
+  uid?: number | string
+  name: string
+  url: string
 }
 
 const props = defineProps({
@@ -64,7 +56,7 @@ const props = defineProps({
   // 上传接口地址
   action: {
     type: String,
-    default: "/common/upload"
+    default: '/common/upload'
   },
   // 上传携带的参数
   data: {
@@ -83,7 +75,7 @@ const props = defineProps({
   // 文件类型, 例如['png', 'jpg', 'jpeg']
   fileType: {
     type: Array as () => string[],
-    default: () => ["png", "jpg", "jpeg"]
+    default: () => ['png', 'jpg', 'jpeg']
   },
   // 是否显示提示
   isShowTip: {
@@ -102,48 +94,50 @@ const props = defineProps({
   }
 })
 
-const { proxy } = getCurrentInstance()
-const emit = defineEmits()
+const proxy = useProxy()
+const emit = defineEmits(['update:modelValue'])
 const number = ref(0)
 const uploadList = ref<UploadImageItem[]>([])
-const dialogImageUrl = ref("")
+const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 const uploadImgUrl = ref(import.meta.env.VITE_APP_BASE_API + props.action)
-const headers = ref({ Authorization: "Bearer " + getToken() })
+const headers = ref({ Authorization: 'Bearer ' + getToken() })
 const fileList = ref<UploadImageItem[]>([])
-const showTip = computed(
-  () => props.isShowTip && (props.fileType || props.fileSize)
-)
+const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize))
 
-watch(() => props.modelValue, (val: any) => {
-  if (val) {
-    // 首先将值转为数组
-    const list = Array.isArray(val) ? val : (props.modelValue as string).split(",")
-    // 然后将数组转为对象数组
-    fileList.value = list.map((item: any) => {
-      if (typeof item === "string") {
-        if (item.indexOf(baseUrl) === -1 && !isExternal(item)) {
-          item = { name: baseUrl + item, url: baseUrl + item }
-        } else {
-          item = { name: item, url: item }
+watch(
+  () => props.modelValue,
+  (val: any) => {
+    if (val) {
+      // 首先将值转为数组
+      const list = Array.isArray(val) ? val : (props.modelValue as string).split(',')
+      // 然后将数组转为对象数组
+      fileList.value = list.map((item: any) => {
+        if (typeof item === 'string') {
+          if (item.indexOf(baseUrl) === -1 && !isExternal(item)) {
+            item = { name: baseUrl + item, url: baseUrl + item }
+          } else {
+            item = { name: item, url: item }
+          }
         }
-      }
-      return item
-    })
-  } else {
-    fileList.value = []
-    return []
-  }
-},{ deep: true, immediate: true })
+        return item
+      })
+    } else {
+      fileList.value = []
+      return []
+    }
+  },
+  { deep: true, immediate: true }
+)
 
 // 上传前loading加载
 function handleBeforeUpload(file: File): boolean {
-  let isImg = false
+  let isImg: boolean
   if (props.fileType.length) {
-    let fileExtension = ""
-    if (file.name.lastIndexOf(".") > -1) {
-      fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1)
+    let fileExtension = ''
+    if (file.name.lastIndexOf('.') > -1) {
+      fileExtension = file.name.slice(file.name.lastIndexOf('.') + 1)
     }
     isImg = props.fileType.some((type: string) => {
       if (file.type.indexOf(type) > -1) return true
@@ -151,10 +145,10 @@ function handleBeforeUpload(file: File): boolean {
       return false
     })
   } else {
-    isImg = file.type.indexOf("image") > -1
+    isImg = file.type.indexOf('image') > -1
   }
   if (!isImg) {
-    proxy.$modal.msgError(`文件格式不正确，请上传${props.fileType.join("/")}图片格式文件!`)
+    proxy.$modal.msgError(`文件格式不正确，请上传${props.fileType.join('/')}图片格式文件!`)
     return false
   }
   if (file.name.includes(',')) {
@@ -168,7 +162,7 @@ function handleBeforeUpload(file: File): boolean {
       return false
     }
   }
-  proxy.$modal.loading("正在上传图片，请稍候...")
+  proxy.$modal.loading('正在上传图片，请稍候...')
   number.value++
   return true
 }
@@ -197,7 +191,7 @@ function handleDelete(file: any): boolean {
   const findex = fileList.value.map((f: UploadImageItem) => f.name).indexOf(file.name)
   if (findex > -1 && uploadList.value.length === number.value) {
     fileList.value.splice(findex, 1)
-    emit("update:modelValue", listToString(fileList.value))
+    emit('update:modelValue', listToString(fileList.value))
     return false
   }
   return true
@@ -209,14 +203,14 @@ function uploadedSuccessfully(): void {
     fileList.value = fileList.value.filter((f: UploadImageItem) => f.url !== undefined).concat(uploadList.value)
     uploadList.value = []
     number.value = 0
-    emit("update:modelValue", listToString(fileList.value))
+    emit('update:modelValue', listToString(fileList.value))
     proxy.$modal.closeLoading()
   }
 }
 
 // 上传失败
 function handleUploadError(): void {
-  proxy.$modal.msgError("上传图片失败")
+  proxy.$modal.msgError('上传图片失败')
   proxy.$modal.closeLoading()
 }
 
@@ -228,14 +222,14 @@ function handlePictureCardPreview(file: any): void {
 
 // 对象转成指定字符串分隔
 function listToString(list: UploadImageItem[], separator?: string): string {
-  let strs = ""
-  separator = separator || ","
+  let strs = ''
+  separator = separator || ','
   for (let i in list) {
-    if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
-      strs += list[i].url.replace(baseUrl, "") + separator
+    if (undefined !== list[i].url && list[i].url.indexOf('blob:') !== 0) {
+      strs += list[i].url.replace(baseUrl, '') + separator
     }
   }
-  return strs != "" ? strs.substr(0, strs.length - 1) : ""
+  return strs != '' ? strs.substr(0, strs.length - 1) : ''
 }
 
 // 初始化拖拽排序
@@ -260,10 +254,10 @@ onMounted(() => {
 <style scoped lang="scss">
 // .el-upload--picture-card 控制加号部分
 :deep(.hide .el-upload--picture-card) {
-    display: none;
+  display: none;
 }
 
 :deep(.el-upload.el-upload--picture-card.is-disabled) {
   display: none !important;
-} 
+}
 </style>

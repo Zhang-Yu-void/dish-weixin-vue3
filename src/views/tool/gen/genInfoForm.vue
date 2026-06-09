@@ -111,7 +111,7 @@
           <el-tree-select
             v-model="info.parentMenuId"
             :data="menuOptions"
-            :props="{ value: 'menuId', label: 'menuName', children: 'children' }"
+            :props="{ value: 'menuId', label: 'menuName', children: 'children' } as any"
             placeholder="请选择系统菜单"
             check-strictly
           />
@@ -144,7 +144,7 @@
         </el-form-item>
       </el-col>
     </el-row>
-    
+
     <template v-if="info.tplCategory == 'tree'">
       <h4 class="form-header">其他信息</h4>
       <el-row v-show="info.tplCategory == 'tree'">
@@ -221,7 +221,7 @@
                 v-for="(table, index) in tables"
                 :key="index"
                 :label="table.tableName + '：' + table.tableComment"
-                :value="table.tableName"
+                :value="table.tableName || ''"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -246,16 +246,15 @@
         </el-col>
       </el-row>
     </template>
-
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { listMenu } from "@/api/system/menu"
+import { listMenu } from '@/api/system/menu'
 
-const subColumns = ref([])
-const menuOptions = ref([])
-const { proxy } = getCurrentInstance()
+const subColumns = ref<any[]>([])
+const menuOptions = ref<any[]>([])
+const proxy = useProxy()
 
 const props = defineProps({
   info: {
@@ -263,35 +262,35 @@ const props = defineProps({
     default: null
   },
   tables: {
-    type: Array,
-    default: null
+    type: Array as () => { tableName?: string; tableComment?: string; columns?: any[] }[],
+    default: () => []
   }
 })
 
 // 表单校验
 const rules = ref({
-  tplCategory: [{ required: true, message: "请选择生成模板", trigger: "blur" }],
-  packageName: [{ required: true, message: "请输入生成包路径", trigger: "blur" }],
-  moduleName: [{ required: true, message: "请输入生成模块名", trigger: "blur" }],
-  businessName: [{ required: true, message: "请输入生成业务名", trigger: "blur" }],
-  functionName: [{ required: true, message: "请输入生成功能名", trigger: "blur" }]
+  tplCategory: [{ required: true, message: '请选择生成模板', trigger: 'blur' }],
+  packageName: [{ required: true, message: '请输入生成包路径', trigger: 'blur' }],
+  moduleName: [{ required: true, message: '请输入生成模块名', trigger: 'blur' }],
+  businessName: [{ required: true, message: '请输入生成业务名', trigger: 'blur' }],
+  functionName: [{ required: true, message: '请输入生成功能名', trigger: 'blur' }]
 })
 
 function subSelectChange(value: string): void {
   if (props.info) {
-    props.info.subTableFkName = ""
+    props.info.subTableFkName = ''
   }
 }
 
 function tplSelectChange(value: string): void {
-  if (value !== "sub" && props.info) {
-    props.info.subTableName = ""
-    props.info.subTableFkName = ""
+  if (value !== 'sub' && props.info) {
+    props.info.subTableName = ''
+    props.info.subTableFkName = ''
   }
 }
 
 function setSubTableColumns(value: string): void {
-  for (const item of props.tables || []) {
+  for (const item of (props.tables || []) as { tableName?: string; columns?: any[] }[]) {
     const name = item.tableName
     if (value === name) {
       subColumns.value = item.columns || []
@@ -302,8 +301,8 @@ function setSubTableColumns(value: string): void {
 
 /** 查询菜单下拉树结构 */
 function getMenuTreeselect(): void {
-  listMenu().then(response => {
-    menuOptions.value = proxy.handleTree(response.data, "menuId")
+  listMenu().then((response) => {
+    menuOptions.value = proxy.handleTree(response.data || [], 'menuId')
   })
 }
 
@@ -311,15 +310,21 @@ onMounted(() => {
   getMenuTreeselect()
 })
 
-watch(() => props.info?.subTableName, (val: string) => {
-  if (val) {
-    setSubTableColumns(val)
+watch(
+  () => props.info?.subTableName,
+  (val: string) => {
+    if (val) {
+      setSubTableColumns(val)
+    }
   }
-})
+)
 
-watch(() => props.info?.tplWebType, (val: string) => {
-  if (val === '' && props.info) {
-    props.info.tplWebType = "element-plus-typescript"
+watch(
+  () => props.info?.tplWebType,
+  (val: string) => {
+    if (val === '' && props.info) {
+      props.info.tplWebType = 'element-plus-typescript'
+    }
   }
-})
+)
 </script>

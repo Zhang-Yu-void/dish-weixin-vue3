@@ -13,12 +13,12 @@
 </template>
 
 <script setup lang="ts">
-import { createTable } from "@/api/tool/gen"
+import { createTable } from '@/api/tool/gen'
 
 const visible = ref<boolean>(false)
-const content = ref<string>("")
-const { proxy } = getCurrentInstance()
-const emit = defineEmits(["ok"])
+const content = ref<string>('')
+const proxy = useProxy()
+const emit = defineEmits(['ok'])
 
 /** 显示弹框 */
 function show(): void {
@@ -27,20 +27,20 @@ function show(): void {
 
 /** 导入按钮操作 */
 function handleImportTable(): void {
-  if (content.value === "") {
-    proxy.$modal.msgError("请输入建表语句")
+  if (content.value === '') {
+    proxy.$modal.msgError('请输入建表语句')
     return
   }
-  createTable({ sql: content.value, tplWebType: 'element-plus-typescript' }).then(res => {
+  createTable({ sql: content.value, tplWebType: 'element-plus-typescript' }).then((res) => {
     proxy.$modal.msgSuccess(res.msg)
     if (res.code === 200) {
       visible.value = false
-      emit("ok")
+      emit('ok')
     }
   })
 }
 
 defineExpose({
-  show,
+  show
 })
 </script>

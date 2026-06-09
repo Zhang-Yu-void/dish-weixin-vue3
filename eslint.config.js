@@ -8,7 +8,7 @@ import autoImportGlobals from './.eslintrc-auto-import.json' with { type: 'json'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**', 'auto-imports.d.ts', 'src/types/components.d.ts']
+    ignores: ['dist/**', 'dev-dist/**', 'node_modules/**', 'auto-imports.d.ts', 'src/types/components.d.ts']
   },
   js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],

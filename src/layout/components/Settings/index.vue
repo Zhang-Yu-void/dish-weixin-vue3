@@ -5,20 +5,14 @@
     </div>
     <div class="nav-wrap">
       <el-tooltip content="左侧菜单" placement="bottom">
-        <div class="item left" @click="handleNavType(1)" :class="{ activeItem: navType == 1 }">
-          <b></b><b></b>
-        </div>
+        <div class="item left" @click="handleNavType(1)" :class="{ activeItem: navType == 1 }"><b></b><b></b></div>
       </el-tooltip>
 
       <el-tooltip content="混合菜单" placement="bottom">
-        <div class="item mix" @click="handleNavType(2)" :class="{ activeItem: navType == 2 }">
-          <b></b><b></b>
-        </div>
+        <div class="item mix" @click="handleNavType(2)" :class="{ activeItem: navType == 2 }"><b></b><b></b></div>
       </el-tooltip>
       <el-tooltip content="顶部菜单" placement="bottom">
-        <div class="item top" @click="handleNavType(3)" :class="{ activeItem: navType == 3 }">
-          <b></b><b></b>
-        </div>
+        <div class="item top" @click="handleNavType(3)" :class="{ activeItem: navType == 3 }"><b></b><b></b></div>
       </el-tooltip>
     </div>
     <div class="setting-drawer-title">
@@ -27,20 +21,42 @@
     <div class="setting-drawer-block-checbox">
       <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-dark')">
         <img src="@/assets/images/dark.svg" alt="dark" />
-        <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
+        <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
           <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
-              <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
+            <svg
+              viewBox="64 64 896 896"
+              data-icon="check"
+              width="1em"
+              height="1em"
+              :fill="theme"
+              aria-hidden="true"
+              focusable="false"
+              class
+            >
+              <path
+                d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
+              />
             </svg>
           </i>
         </div>
       </div>
       <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-light')">
         <img src="@/assets/images/light.svg" alt="light" />
-        <div v-if="sideTheme === 'theme-light'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
+        <div v-if="sideTheme === 'theme-light'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
           <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
-              <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
+            <svg
+              viewBox="64 64 896 896"
+              data-icon="check"
+              width="1em"
+              height="1em"
+              :fill="theme"
+              aria-hidden="true"
+              focusable="false"
+              class
+            >
+              <path
+                d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
+              />
             </svg>
           </i>
         </div>
@@ -49,7 +65,7 @@
     <div class="drawer-item">
       <span>主题颜色</span>
       <span class="comp-style">
-        <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange"/>
+        <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
       </span>
     </div>
     <el-divider />
@@ -66,7 +82,12 @@
     <div class="drawer-item">
       <span>持久化标签页</span>
       <span class="comp-style">
-        <el-switch v-model="settingsStore.tagsViewPersist" :disabled="!settingsStore.tagsView" @change="tagsViewPersistChange" class="drawer-switch" />
+        <el-switch
+          v-model="settingsStore.tagsViewPersist"
+          :disabled="!settingsStore.tagsView"
+          @change="tagsViewPersistChange"
+          class="drawer-switch"
+        />
       </span>
     </div>
 
@@ -110,7 +131,6 @@
     <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">保存配置</el-button>
     <el-button plain icon="Refresh" @click="resetSetting">重置配置</el-button>
   </el-drawer>
-
 </template>
 
 <script setup lang="ts">
@@ -119,7 +139,7 @@ import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import { handleThemeStyle } from '@/utils/theme'
 
-const { proxy } = getCurrentInstance()
+const proxy = useProxy()
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()
@@ -129,19 +149,30 @@ const theme = ref<string>(settingsStore.theme)
 const sideTheme = ref<string>(settingsStore.sideTheme)
 const tagsViewPersist = ref(settingsStore.tagsViewPersist)
 const storeSettings = computed(() => settingsStore)
-const predefineColors = ref<string[]>(["#409EFF", "#ff4500", "#ff8c00", "#ffd700", "#90ee90", "#00ced1", "#1e90ff", "#c71585"])
+const predefineColors = ref<string[]>([
+  '#409EFF',
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  '#c71585'
+])
 
 /** 是否需要dynamicTitle */
 function dynamicTitleChange(): void {
   useSettingsStore().setTitle(useSettingsStore().title)
 }
 
-function tagsViewPersistChange(val: boolean): void {
+function tagsViewPersistChange(val: string | number | boolean): void {
+  val = val === true
   settingsStore.tagsViewPersist = val
   tagsViewPersist.value = val
 }
 
-function themeChange(val: string): void {
+function themeChange(val: string | null): void {
+  if (!val) return
   settingsStore.theme = val
   handleThemeStyle(val)
 }
@@ -157,49 +188,52 @@ function handleNavType(val: number): void {
 }
 
 /** 菜单导航设置 */
-watch(() => navType, (val: any) => {
-  if (val.value == 1) {
-    appStore.sidebar.opened = true
-    appStore.toggleSideBarHide(false)
-  }
-  if (val.value == 2) {
-    appStore.sidebar.opened = true
-  }
-  if (val.value == 3) {
-    appStore.sidebar.opened = false
-    appStore.toggleSideBarHide(true)
-  }
-  if ([1, 3].includes(val.value)) {
+watch(
+  () => navType,
+  (val: any) => {
+    if (val.value == 1) {
+      appStore.sidebar.opened = true
+      appStore.toggleSideBarHide(false)
+    }
+    if (val.value == 2) {
+      appStore.sidebar.opened = true
+    }
+    if (val.value == 3) {
+      appStore.sidebar.opened = false
+      appStore.toggleSideBarHide(true)
+    }
+    if ([1, 3].includes(val.value)) {
       permissionStore.setSidebarRouters(permissionStore.defaultRoutes)
-  }
-  }, { immediate: true, deep: true }
+    }
+  },
+  { immediate: true, deep: true }
 )
 
 function saveSetting(): void {
-  proxy.$modal.loading("正在保存到本地，请稍候...")
+  proxy.$modal.loading('正在保存到本地，请稍候...')
   if (!tagsViewPersist.value) {
     proxy.$cache.local.remove('tags-view-visited')
   }
   const layoutSetting = {
-    "navType": storeSettings.value.navType,
-    "tagsView": storeSettings.value.tagsView,
-    "tagsIcon": storeSettings.value.tagsIcon,
-    "tagsViewPersist": storeSettings.value.tagsViewPersist,
-    "fixedHeader": storeSettings.value.fixedHeader,
-    "sidebarLogo": storeSettings.value.sidebarLogo,
-    "dynamicTitle": storeSettings.value.dynamicTitle,
-    "footerVisible": storeSettings.value.footerVisible,
-    "sideTheme": storeSettings.value.sideTheme,
-    "theme": storeSettings.value.theme
+    navType: storeSettings.value.navType,
+    tagsView: storeSettings.value.tagsView,
+    tagsIcon: storeSettings.value.tagsIcon,
+    tagsViewPersist: storeSettings.value.tagsViewPersist,
+    fixedHeader: storeSettings.value.fixedHeader,
+    sidebarLogo: storeSettings.value.sidebarLogo,
+    dynamicTitle: storeSettings.value.dynamicTitle,
+    footerVisible: storeSettings.value.footerVisible,
+    sideTheme: storeSettings.value.sideTheme,
+    theme: storeSettings.value.theme
   }
-  localStorage.setItem("layout-setting", JSON.stringify(layoutSetting))
-  setTimeout(proxy.$modal.closeLoading(), 1000)
+  localStorage.setItem('layout-setting', JSON.stringify(layoutSetting))
+  setTimeout(() => proxy.$modal.closeLoading(), 1000)
 }
 
 function resetSetting(): void {
   proxy.$cache.local.remove('tags-view-visited')
-  proxy.$modal.loading("正在清除设置缓存并刷新，请稍候...")
-  localStorage.removeItem("layout-setting")
+  proxy.$modal.loading('正在清除设置缓存并刷新，请稍候...')
+  localStorage.removeItem('layout-setting')
   setTimeout(() => {
     window.location.reload()
   }, 1000)
@@ -214,7 +248,7 @@ defineExpose({
 })
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .setting-drawer-title {
   margin-bottom: 12px;
   color: var(--el-text-color-primary, rgba(0, 0, 0, 0.85));
