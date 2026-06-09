@@ -1,0 +1,6 @@
+dist
+node_modules
+pnpm-lock.yaml
+*.min.js
+auto-imports.d.ts
+src/types/components.d.ts
