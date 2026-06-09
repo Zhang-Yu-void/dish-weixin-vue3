@@ -26,7 +26,13 @@
       </el-form-item>
     </el-form>
     <el-row>
-      <el-table @row-click="clickRow" ref="table" :data="dbTableList" @selection-change="handleSelectionChange" height="260px">
+      <el-table
+        @row-click="clickRow"
+        ref="table"
+        :data="dbTableList"
+        @selection-change="handleSelectionChange"
+        height="260px"
+      >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="tableName" label="表名称" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="tableComment" label="表描述" :show-overflow-tooltip="true"></el-table-column>
@@ -34,7 +40,7 @@
         <el-table-column prop="updateTime" label="更新时间"></el-table-column>
       </el-table>
       <pagination
-        v-show="total>0"
+        v-show="total > 0"
         :total="total"
         v-model:page="queryParams.pageNum"
         v-model:limit="queryParams.pageSize"
@@ -51,14 +57,14 @@
 </template>
 
 <script setup lang="ts">
-import { listDbTable, importTable } from "@/api/tool/gen"
+import { listDbTable, importTable } from '@/api/tool/gen'
 import type { GenQueryParams, GenTable } from '@/types/api/tool/gen'
 
 const total = ref<number>(0)
 const visible = ref<boolean>(false)
 const tables = ref<string[]>([])
 const dbTableList = ref<GenTable[]>([])
-const { proxy } = getCurrentInstance()
+const proxy = useProxy()
 
 const queryParams = reactive<GenQueryParams>({
   pageNum: 1,
@@ -67,7 +73,7 @@ const queryParams = reactive<GenQueryParams>({
   tableComment: undefined
 })
 
-const emit = defineEmits(["ok"])
+const emit = defineEmits(['ok'])
 
 /** 查询参数列表 */
 function show(): void {
@@ -82,12 +88,12 @@ function clickRow(row: GenTable) {
 
 /** 多选框选中数据 */
 function handleSelectionChange(selection: GenTable[]) {
-  tables.value = selection.map(item => item.tableName)
+  tables.value = selection.map((item) => item.tableName!).filter((name): name is string => !!name)
 }
 
 /** 查询表数据 */
 function getList() {
-  listDbTable(queryParams).then(res => {
+  listDbTable(queryParams).then((res) => {
     dbTableList.value = res.rows
     total.value = res.total
   })
@@ -101,27 +107,27 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
-  proxy.resetForm("queryRef")
+  proxy.resetForm('queryRef')
   handleQuery()
 }
 
 /** 导入按钮操作 */
 function handleImportTable() {
-  const tableNames = tables.value.join(",")
-  if (tableNames == "") {
-    proxy.$modal.msgError("请选择要导入的表")
+  const tableNames = tables.value.join(',')
+  if (tableNames == '') {
+    proxy.$modal.msgError('请选择要导入的表')
     return
   }
-  importTable({ tables: tableNames, tplWebType: 'element-plus-typescript' }).then(res => {
+  importTable({ tables: tableNames, tplWebType: 'element-plus-typescript' }).then((res) => {
     proxy.$modal.msgSuccess(res.msg)
     if (res.code === 200) {
       visible.value = false
-      emit("ok")
+      emit('ok')
     }
   })
 }
 
 defineExpose({
-  show,
+  show
 })
 </script>

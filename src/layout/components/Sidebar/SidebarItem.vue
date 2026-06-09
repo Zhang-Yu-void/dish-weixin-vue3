@@ -1,15 +1,28 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="hasOneShowingChild(item.children, item) && (!onlyOneChild.children || onlyOneChild.noShowingChildren) && !item.alwaysShow">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
-        <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }">
-          <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"/>
-          <template #title><span class="menu-title" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span></template>
+    <template
+      v-if="
+        hasOneShowingChild(item.children, item) &&
+        (!onlyOneChild.children || onlyOneChild.noShowingChildren) &&
+        !item.alwaysShow
+      "
+    >
+      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path || '', onlyOneChild.query)">
+        <el-menu-item
+          :index="resolveMenuIndex(onlyOneChild.path, onlyOneChild.query)"
+          :class="{ 'submenu-title-noDropdown': !isNest }"
+        >
+          <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
+          <template #title
+            ><span class="menu-title" :title="hasTitle(onlyOneChild.meta.title || '')">{{
+              onlyOneChild.meta.title
+            }}</span></template
+          >
         </el-menu-item>
       </app-link>
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" teleported>
+    <el-sub-menu v-else ref="subMenu" :index="resolveMenuIndex(item.path)" teleported>
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="item.meta && item.meta.icon" />
         <span class="menu-title" :title="hasTitle(item.meta.title)">{{ item.meta.title }}</span>
@@ -20,7 +33,7 @@
         :key="child.path + index"
         :is-nest="true"
         :item="child"
-        :base-path="resolvePath(child.path)"
+        :base-path="resolveMenuIndex(child.path)"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -31,6 +44,16 @@
 import { isExternal } from '@/utils/validate'
 import AppLink from './Link.vue'
 import { getNormalPath } from '@/utils/ruoyi'
+
+interface RouteItem {
+  path?: string
+  query?: string
+  hidden?: boolean
+  alwaysShow?: boolean
+  meta?: { title?: string; icon?: string }
+  children?: RouteItem[]
+  noShowingChildren?: boolean
+}
 
 const props = defineProps({
   // route object
@@ -48,13 +71,13 @@ const props = defineProps({
   }
 })
 
-const onlyOneChild = ref({})
+const onlyOneChild = ref<RouteItem>({})
 
 function hasOneShowingChild(children: any[] = [], parent: any) {
   if (!children) {
     children = []
   }
-  const showingChildren = children.filter(item => {
+  const showingChildren = children.filter((item) => {
     if (item.hidden) {
       return false
     }
@@ -76,6 +99,11 @@ function hasOneShowingChild(children: any[] = [], parent: any) {
   return false
 }
 
+function resolveMenuIndex(routePath?: string, routeQuery?: string): string {
+  const resolved = resolvePath(routePath || '', routeQuery)
+  return typeof resolved === 'string' ? resolved : resolved.path
+}
+
 function resolvePath(routePath: string, routeQuery?: string): string | { path: string; query: Record<string, any> } {
   if (isExternal(routePath)) {
     return routePath
@@ -94,7 +122,7 @@ function hasTitle(title: string): string {
   if (title.length > 5) {
     return title
   } else {
-    return ""
+    return ''
   }
 }
 </script>

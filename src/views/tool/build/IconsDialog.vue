@@ -1,11 +1,23 @@
 <template>
   <div class="icon-dialog">
-    <el-dialog v-model="value" width="980px" :close-on-click-modal="false" :modal-append-to-body="false" @open="onOpen"
-      @close="onClose">
-      <template #header="{ close, titleId, titleClass }">
+    <el-dialog
+      v-model="value"
+      width="980px"
+      :close-on-click-modal="false"
+      :modal-append-to-body="false"
+      @open="onOpen"
+      @close="onClose"
+    >
+      <template #header>
         选择图标
-        <el-input v-model="key" size="small" :style="{ width: '260px' }" placeholder="请输入图标名称" prefix-icon="Search"
-          clearable />
+        <el-input
+          v-model="key"
+          size="small"
+          :style="{ width: '260px' }"
+          placeholder="请输入图标名称"
+          prefix-icon="Search"
+          clearable
+        />
       </template>
       <ul class="icon-ul">
         <li v-for="icon in iconList" :key="icon" :class="active === icon ? 'active-item' : ''" @click="onSelect(icon)">
@@ -28,14 +40,14 @@ const originList: string[] = []
 const key = ref<string>('')
 const active = ref<string>('')
 const emit = defineEmits(['select'])
-const value = defineModel()
+const value = defineModel<boolean>()
 for (const [key] of Object.entries(ElementPlusIconsVue)) {
   iconList.value.push(key)
   originList.push(key)
 }
 
-function onOpen(): void { }
-function onClose(): void { }
+function onOpen(): void {}
+function onClose(): void {}
 function onSelect(icon: string): void {
   active.value = icon
   emit('select', icon)
@@ -46,7 +58,7 @@ function onSelect(icon: string): void {
 
 watch(key, (val: string) => {
   if (val) {
-    iconList.value = originList.filter(name => name.indexOf(val) > -1)
+    iconList.value = originList.filter((name) => name.indexOf(val) > -1)
   } else {
     iconList.value = originList
   }
@@ -78,7 +90,7 @@ watch(key, (val: string) => {
 
     &.active-item {
       background: #e1f3fb;
-      color: #7a6df0
+      color: #7a6df0;
     }
 
     i {

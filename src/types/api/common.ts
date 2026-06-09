@@ -8,7 +8,11 @@ export interface AjaxResult<T = any> {
   data?: T
 }
 
-/** API 表格响应类型 */
+/**
+ * API 表格响应类型
+ * @example TableDataInfo<SysUser> → rows: SysUser[]
+ * 注意：T 传实体类型即可，不要写成 SysUser[]，否则 rows 会变成二维数组
+ */
 export interface TableDataInfo<T = any> {
   /** 状态码 */
   code: number
@@ -70,6 +74,12 @@ export interface TableShowColumns {
   label: string
   // 是否显示
   visible: boolean
+}
+
+/** 表格默认排序 */
+export interface TableDefaultSort {
+  prop: string
+  order: 'ascending' | 'descending'
 }
 
 /** 文件上传响应数据 */

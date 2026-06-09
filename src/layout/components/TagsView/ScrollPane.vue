@@ -1,10 +1,5 @@
 <template>
-  <el-scrollbar
-    ref="scrollContainer"
-    :vertical="false"
-    class="scroll-container"
-    @wheel.prevent="handleScroll"
-  >
+  <el-scrollbar ref="scrollContainer" :vertical="false" class="scroll-container" @wheel.prevent="handleScroll">
     <slot />
   </el-scrollbar>
 </template>
@@ -13,7 +8,7 @@
 import useTagsViewStore from '@/store/modules/tagsView'
 
 const tagAndTagSpacing = ref<number>(4)
-const { proxy } = getCurrentInstance()
+const proxy = useProxy()
 
 const scrollWrapper = computed(() => proxy.$refs.scrollContainer.$refs.wrapRef)
 
@@ -41,9 +36,9 @@ function smoothScrollTo(target: number): void {
 
   function ease(t: number, b: number, c: number, d: number): number {
     t /= d / 2
-    if (t < 1) return c / 2 * t * t + b
+    if (t < 1) return (c / 2) * t * t + b
     t--
-    return -c / 2 * (t * (t - 2) - 1) + b
+    return (-c / 2) * (t * (t - 2) - 1) + b
   }
 
   function step(timestamp: number): void {
@@ -145,7 +140,7 @@ defineExpose({
 })
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .scroll-container {
   white-space: nowrap;
   position: relative;

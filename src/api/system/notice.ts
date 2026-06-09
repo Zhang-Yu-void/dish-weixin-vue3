@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { NoticeQueryParams, SysNotice, SysNoticeTopResult, AjaxResult, TableDataInfo } from '@/types'
 
 // 查询公告列表
-export function listNotice(query: NoticeQueryParams): Promise<TableDataInfo<SysNotice[]>> {
+export function listNotice(query: NoticeQueryParams): Promise<TableDataInfo<SysNotice>> {
   return request({
     url: '/system/notice/list',
     method: 'get',

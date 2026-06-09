@@ -1,9 +1,15 @@
 <template>
-  <el-drawer :model-value="visible" direction="rtl" size="700px" append-to-body @update:model-value="$emit('update:visible', $event)">
+  <el-drawer
+    :model-value="visible"
+    direction="rtl"
+    size="700px"
+    append-to-body
+    @update:model-value="$emit('update:visible', $event)"
+  >
     <!-- 自定义标题 -->
     <template #header>
       <div class="drawer-head">
-        <el-icon style="color:#5b9bd5;margin-right:8px;"><List /></el-icon>
+        <el-icon style="color: #5b9bd5; margin-right: 8px"><List /></el-icon>
         <span class="drawer-head-name">{{ row.dictName }}</span>
         <span class="drawer-head-type">{{ row.dictType }}</span>
       </div>
@@ -18,7 +24,7 @@
 
       <!-- 空数据 -->
       <div v-else-if="!dataList.length" class="drawer-empty">
-        <el-icon style="font-size:36px;"><Document /></el-icon>
+        <el-icon style="font-size: 36px"><Document /></el-icon>
         <div>暂无字典数据</div>
       </div>
 
@@ -50,7 +56,12 @@
           <div class="dict-cell">
             <div class="dict-cell-key">标签</div>
             <div class="dict-cell-val">
-              <el-tag v-if="item.listClass && item.listClass !== 'default'" :type="item.listClass === 'primary' ? undefined : item.listClass" size="small">{{ item.dictLabel }}</el-tag>
+              <el-tag
+                v-if="item.listClass && item.listClass !== 'default'"
+                :type="getListClassType(item.listClass)"
+                size="small"
+                >{{ item.dictLabel }}</el-tag
+              >
               <span v-else>{{ item.dictLabel }}</span>
             </div>
           </div>
@@ -86,26 +97,41 @@ const emit = defineEmits(['update:visible'])
 const loading = ref<boolean>(false)
 const dataList = ref<SysDictData[]>([])
 
+type TagType = 'success' | 'warning' | 'info' | 'danger' | undefined
+
+function getListClassType(listClass: string): TagType {
+  if (!listClass || listClass === 'default' || listClass === 'primary') {
+    return undefined
+  }
+  return listClass as TagType
+}
+
 const normalCount = computed(() => dataList.value.filter((r: SysDictData) => r.status === '0').length)
 const disabledCount = computed(() => dataList.value.filter((r: SysDictData) => r.status !== '0').length)
 
-watch(() => props.visible, (val: boolean) => {
-  if (val) {
-    loadData()
-  } else {
-    dataList.value = []
+watch(
+  () => props.visible,
+  (val: boolean) => {
+    if (val) {
+      loadData()
+    } else {
+      dataList.value = []
+    }
   }
-})
+)
 
 function loadData() {
   if (!props.row?.dictType) return
   loading.value = true
   dataList.value = []
-  listData({ dictType: props.row.dictType, pageSize: 100, pageNum: 1 }).then(response => {
-    dataList.value = response.rows || []
-  }).catch(() => {}).finally(() => {
-    loading.value = false
-  })
+  listData({ dictType: props.row.dictType, pageSize: 100, pageNum: 1 })
+    .then((response) => {
+      dataList.value = response.rows || []
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -162,8 +188,12 @@ function loadData() {
   font-weight: 700;
   color: #2c3e50;
 }
-.stat-num.success { color: #27ae60; }
-.stat-num.danger  { color: #e74c3c; }
+.stat-num.success {
+  color: #27ae60;
+}
+.stat-num.danger {
+  color: #e74c3c;
+}
 .stat-label {
   font-size: 11px;
   color: #95a5a6;

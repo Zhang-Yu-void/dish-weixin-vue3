@@ -21,27 +21,31 @@
 </template>
 
 <script setup lang="ts">
-const open = defineModel()
+const open = defineModel<boolean>()
 const props = defineProps({
   showFileName: Boolean
 })
 const emit = defineEmits(['confirm'])
 const formData = ref({
-  fileName: undefined,
+  fileName: '',
   type: 'file'
 })
 const codeTypeForm = ref()
 const rules = {
-  fileName: [{
-    required: true,
-    message: '请输入文件名',
-    trigger: 'blur'
-  }],
-  type: [{
-    required: true,
-    message: '生成类型不能为空',
-    trigger: 'change'
-  }]
+  fileName: [
+    {
+      required: true,
+      message: '请输入文件名',
+      trigger: 'blur'
+    }
+  ],
+  type: [
+    {
+      required: true,
+      message: '生成类型不能为空',
+      trigger: 'change'
+    }
+  ]
 }
 const typeOptions = ref([
   {
