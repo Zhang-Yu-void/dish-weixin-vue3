@@ -43,13 +43,8 @@
 import { getToken } from '@/utils/auth'
 import { isExternal } from '@/utils/validate'
 import Sortable from 'sortablejs'
+import type { UploadUserFile } from 'element-plus'
 import type { UploadFileResult } from '@/types/api/common'
-
-interface UploadImageItem {
-  uid?: number | string
-  name: string
-  url: string
-}
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -97,13 +92,13 @@ const props = defineProps({
 const proxy = useProxy()
 const emit = defineEmits(['update:modelValue'])
 const number = ref(0)
-const uploadList = ref<UploadImageItem[]>([])
+const uploadList = ref<UploadUserFile[]>([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 const uploadImgUrl = ref(import.meta.env.VITE_APP_BASE_API + props.action)
 const headers = ref({ Authorization: 'Bearer ' + getToken() })
-const fileList = ref<UploadImageItem[]>([])
+const fileList = ref<UploadUserFile[]>([])
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize))
 
 watch(
@@ -188,10 +183,10 @@ function handleUploadSuccess(res: UploadFileResult, file: any): void {
 
 // 删除图片
 function handleDelete(file: any): boolean {
-  const findex = fileList.value.map((f: UploadImageItem) => f.name).indexOf(file.name)
+  const findex = fileList.value.map((f: UploadUserFile) => f.name).indexOf(file.name)
   if (findex > -1 && uploadList.value.length === number.value) {
     fileList.value.splice(findex, 1)
-    emit('update:modelValue', listToString(fileList.value))
+    emit('update:modelValue', fileList.value.map((f: UploadUserFile) => f.name).join(','))
     return false
   }
   return true
@@ -200,10 +195,12 @@ function handleDelete(file: any): boolean {
 // 上传结束处理
 function uploadedSuccessfully(): void {
   if (number.value > 0 && uploadList.value.length === number.value) {
-    fileList.value = fileList.value.filter((f: UploadImageItem) => f.url !== undefined).concat(uploadList.value)
+    fileList.value = fileList.value
+      .filter((f: UploadUserFile) => f.url !== undefined)
+      .concat(uploadList.value as UploadUserFile[])
     uploadList.value = []
     number.value = 0
-    emit('update:modelValue', listToString(fileList.value))
+    emit('update:modelValue', fileList.value.map((f: UploadUserFile) => f.name).join(','))
     proxy.$modal.closeLoading()
   }
 }
@@ -220,18 +217,6 @@ function handlePictureCardPreview(file: any): void {
   dialogVisible.value = true
 }
 
-// 对象转成指定字符串分隔
-function listToString(list: UploadImageItem[], separator?: string): string {
-  let strs = ''
-  separator = separator || ','
-  for (let i in list) {
-    if (undefined !== list[i].url && list[i].url.indexOf('blob:') !== 0) {
-      strs += list[i].url.replace(baseUrl, '') + separator
-    }
-  }
-  return strs != '' ? strs.substr(0, strs.length - 1) : ''
-}
-
 // 初始化拖拽排序
 onMounted(() => {
   if (props.drag && !props.disabled) {
@@ -242,7 +227,7 @@ onMounted(() => {
           onEnd: (evt: any) => {
             const movedItem = fileList.value.splice(evt.oldIndex, 1)[0]
             fileList.value.splice(evt.newIndex, 0, movedItem)
-            emit('update:modelValue', listToString(fileList.value))
+            emit('update:modelValue', fileList.value.map((f: UploadUserFile) => f.name).join(','))
           }
         })
       }

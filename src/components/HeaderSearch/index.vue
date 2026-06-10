@@ -1,14 +1,7 @@
 <template>
   <div class="header-search">
     <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
-    <el-dialog
-      v-model="show"
-      width="600"
-      @close="close"
-      @opened="onDialogOpened"
-      :show-close="false"
-      append-to-body
-    >
+    <el-dialog v-model="show" width="600" @close="close" @opened="onDialogOpened" :show-close="false" append-to-body>
       <el-input
         v-model="search"
         ref="headerSearchSelectRef"
@@ -18,8 +11,7 @@
         placeholder="菜单搜索，支持标题、URL模糊查询"
         clearable
         @keyup.enter="selectActiveResult"
-        @keydown.up.prevent="navigateResult('up')"
-        @keydown.down.prevent="navigateResult('down')"
+        @keydown="handleSearchKeydown as any"
       >
       </el-input>
 
@@ -29,7 +21,6 @@
 
       <div class="result-wrap">
         <el-scrollbar>
-
           <template v-if="options.length > 0">
             <div
               class="search-item"
@@ -54,23 +45,19 @@
 
           <div class="empty-state" v-else-if="search && options.length === 0">
             <el-icon class="empty-icon"><Search /></el-icon>
-            <p class="empty-text">未找到 "<strong>{{ search }}</strong>" 相关菜单</p>
+            <p class="empty-text">
+              未找到 "<strong>{{ search }}</strong
+              >" 相关菜单
+            </p>
             <p class="empty-tip">试试其他关键词或路径</p>
           </div>
-
         </el-scrollbar>
       </div>
 
       <div class="search-footer">
-        <span class="shortcut-item">
-          <kbd>↑</kbd><kbd>↓</kbd> 切换
-        </span>
-        <span class="shortcut-item">
-          <kbd>↵</kbd> 选择
-        </span>
-        <span class="shortcut-item">
-          <kbd>Esc</kbd> 关闭
-        </span>
+        <span class="shortcut-item"> <kbd>↑</kbd><kbd>↓</kbd> 切换 </span>
+        <span class="shortcut-item"> <kbd>↵</kbd> 选择 </span>
+        <span class="shortcut-item"> <kbd>Esc</kbd> 关闭 </span>
       </div>
     </el-dialog>
   </div>
@@ -127,8 +114,8 @@ function change(val: SearchItem): void {
   const query = val.query
   if (isHttp(p)) {
     // http(s):// 路径新窗口打开
-    const pindex = p.indexOf("http")
-    window.open(p.substr(pindex, p.length), "_blank")
+    const pindex = p.indexOf('http')
+    window.open(p.substr(pindex, p.length), '_blank')
   } else {
     if (query) {
       router.push({ path: p, query: JSON.parse(query) })
@@ -155,7 +142,9 @@ function initFuse(list: SearchItem[]): void {
 function generateRoutes(routes: any, basePath = '', prefixTitle: string[] = []): SearchItem[] {
   let res: SearchItem[] = []
   for (const r of routes) {
-    if (r.hidden) { continue }
+    if (r.hidden) {
+      continue
+    }
     const p = r.path.length > 0 && r.path[0] === '/' ? r.path : '/' + r.path
     const data: SearchItem = {
       path: !isHttp(r.path) ? getNormalPath(basePath + p) : r.path,
@@ -165,7 +154,7 @@ function generateRoutes(routes: any, basePath = '', prefixTitle: string[] = []):
     if (r.meta && r.meta.title) {
       data.title = [...data.title, r.meta.title as string]
       data.icon = (r.meta.icon as string) || ''
-      if (r.redirect !== "noRedirect") {
+      if (r.redirect !== 'noRedirect') {
         res.push(data)
       }
     }
@@ -186,9 +175,7 @@ function querySearch(query: string): void {
   activeIndex.value = -1
   if (query !== '') {
     const q = query.toLowerCase()
-    const pathMatches = searchPool.value.filter((item: SearchItem) =>
-      item.path.toLowerCase().includes(q)
-    )
+    const pathMatches = searchPool.value.filter((item: SearchItem) => item.path.toLowerCase().includes(q))
     const fuseMatches = (fuse.value?.search(query) ?? []).map((item: any) => item.item as SearchItem)
     const merged: SearchItem[] = [...pathMatches]
     fuseMatches.forEach((item: SearchItem) => {
@@ -205,15 +192,25 @@ function querySearch(query: string): void {
 function activeStyle(index: number): Record<string, string> {
   if (index !== activeIndex.value) return {}
   return {
-    "background-color": theme.value,
-    "color": "#fff"
+    'background-color': theme.value,
+    color: '#fff'
+  }
+}
+
+function handleSearchKeydown(e: KeyboardEvent): void {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    navigateResult('up')
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    navigateResult('down')
   }
 }
 
 function navigateResult(direction: 'up' | 'down'): void {
-  if (direction === "up") {
+  if (direction === 'up') {
     activeIndex.value = activeIndex.value <= 0 ? options.value.length - 1 : activeIndex.value - 1
-  } else if (direction === "down") {
+  } else if (direction === 'down') {
     activeIndex.value = activeIndex.value >= options.value.length - 1 ? 0 : activeIndex.value + 1
   }
 }
@@ -245,7 +242,7 @@ watch(searchPool, (list: SearchItem[]) => {
 })
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 :deep(.el-dialog__header) {
   padding: 6px !important;
 }
