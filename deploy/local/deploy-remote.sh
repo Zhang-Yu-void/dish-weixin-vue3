@@ -28,9 +28,23 @@ fi
 
 bash "${SCRIPT_DIR}/build.sh"
 
+sync_dist_to_remote() {
+  local src="${DIST_LOCAL}/"
+  local dest="${SSH_HOST}:${WWW_ROOT}/"
+
+  if ssh "${SSH_HOST}" "command -v rsync >/dev/null 2>&1"; then
+    rsync -avz --delete "${src}" "${dest}"
+    return
+  fi
+
+  echo ">>> Remote rsync not found, falling back to tar+ssh ..."
+  ssh "${SSH_HOST}" "mkdir -p '${WWW_ROOT}' && find '${WWW_ROOT}' -mindepth 1 -delete"
+  tar -C "${DIST_LOCAL}" -czf - . | ssh "${SSH_HOST}" "tar -xzf - -C '${WWW_ROOT}'"
+}
+
 echo ">>> Upload frontend dist to ${SSH_HOST}:${WWW_ROOT} ..."
 ssh "${SSH_HOST}" "mkdir -p '${WWW_ROOT}' '${REMOTE_DEPLOY_DIR}'"
-rsync -avz --delete "${DIST_LOCAL}/" "${SSH_HOST}:${WWW_ROOT}/"
+sync_dist_to_remote
 scp "${ENV_FILE}" "${SSH_HOST}:${REMOTE_ENV_FILE}"
 scp "${LOCAL_REPO}/deploy/nginx/ruoyi.conf" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/ruoyi.conf"
 scp "${LOCAL_REPO}/deploy/direct/publish-static.sh" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/publish-static.sh"

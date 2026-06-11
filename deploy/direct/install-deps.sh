@@ -25,7 +25,7 @@ if [[ "${MISSING}" -eq 0 ]]; then
   echo "All frontend dependencies present."
 else
   echo "Install hints (Alibaba Cloud Linux / CentOS):"
-  echo "  sudo yum install -y nginx"
+  echo "  sudo yum install -y nginx rsync"
   echo "  # Node: use nvm or official tarball"
   exit 1
 fi
