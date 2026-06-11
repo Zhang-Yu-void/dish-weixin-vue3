@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Direct deploy: build Vue dist and sync to host Nginx document root.
+# Publish pre-built dist to Nginx (no npm build).
 set -euo pipefail
 
 FRONTEND_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -16,9 +16,10 @@ WWW_ROOT="${WWW_ROOT:-/data/ruoyi/www}"
 NGINX_SITE="${NGINX_SITE:-/etc/nginx/conf.d/ruoyi.conf}"
 NGINX_PORT="${NGINX_PORT:-8080}"
 BACKEND_PORT="${BACKEND_PORT:-8082}"
+DIST_DIR="${DIST_DIR:-${FRONTEND_REPO}/dist}"
 
 install_nginx_site() {
-  local template="${FRONTEND_REPO}/deploy/nginx/ruoyi.conf"
+  local template="${NGINX_TEMPLATE:-${FRONTEND_REPO}/deploy/nginx/ruoyi.conf}"
   local rendered="/tmp/ruoyi-nginx-${NGINX_PORT}.conf"
 
   if [[ ! -f "${template}" ]]; then
@@ -45,34 +46,13 @@ install_nginx_site() {
   echo "Nginx site installed: ${NGINX_SITE} (listen :${NGINX_PORT}, proxy -> :${BACKEND_PORT})"
 }
 
-DIST_DIR="${DIST_DIR:-${FRONTEND_REPO}/dist}"
-
-if [[ "${SKIP_BUILD:-0}" == "1" ]]; then
-  if [[ ! -f "${DIST_DIR}/index.html" ]]; then
-    echo "Error: dist not found at ${DIST_DIR} (SKIP_BUILD=1)"
-    exit 1
-  fi
-  mkdir -p "${WWW_ROOT}"
-  rsync -av --delete "${DIST_DIR}/" "${WWW_ROOT}/"
-  echo "Frontend dist synced -> ${WWW_ROOT}"
-else
-  if [[ ! -f "${FRONTEND_REPO}/package.json" ]]; then
-    echo "Error: package.json not found in ${FRONTEND_REPO}"
-    exit 1
-  fi
-
-  cd "${FRONTEND_REPO}"
-  if [[ -f package-lock.json ]]; then
-    npm ci
-  else
-    npm install
-  fi
-  npm run build:prod
-
-  mkdir -p "${WWW_ROOT}"
-  rsync -av --delete "${FRONTEND_REPO}/dist/" "${WWW_ROOT}/"
-  echo "Frontend built -> ${WWW_ROOT}"
+if [[ ! -f "${DIST_DIR}/index.html" ]]; then
+  echo "Error: dist not found: ${DIST_DIR}/index.html"
+  exit 1
 fi
 
+mkdir -p "${WWW_ROOT}"
+rsync -av --delete "${DIST_DIR}/" "${WWW_ROOT}/"
+echo "Static files published -> ${WWW_ROOT}"
+
 install_nginx_site
-echo "Frontend ready at http://8.141.20.44:${NGINX_PORT}"

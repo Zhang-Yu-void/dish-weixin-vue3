@@ -9,7 +9,17 @@ Production uses **direct deployment**: host Nginx on **:8080** serves static fil
 | Nginx (frontend)                  | 8080 |
 | Spring Boot (backend, other repo) | 8082 |
 
-## Server deploy
+## Local build + remote deploy (recommended)
+
+Build on Mac, upload `dist/` to server (server does not need Node):
+
+```bash
+# Set SSH_HOST=aliyun in .env.prod (or root@8.141.20.44)
+bash deploy/local/build.sh              # build dist only
+bash deploy/local/deploy-remote.sh      # upload dist + reload Nginx
+```
+
+## Server deploy (build on server)
 
 ```bash
 cd /opt/ruoyi/dish-weixin-vue3
