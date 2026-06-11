@@ -59,7 +59,7 @@ export SERVER_PORT=8082 SPRING_PROFILES_ACTIVE=dev
 mvn spring-boot:run -pl ruoyi-admin
 
 # terminal 2: frontend
-npm run dev
+pnpm run dev
 ```
 
 ## Nginx template

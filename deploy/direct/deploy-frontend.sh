@@ -62,12 +62,17 @@ else
   fi
 
   cd "${FRONTEND_REPO}"
-  if [[ -f package-lock.json ]]; then
-    npm ci
-  else
-    npm install
+  if ! command -v pnpm >/dev/null 2>&1; then
+    echo "Error: pnpm is required (this repo uses pnpm-lock.yaml, not npm)."
+    echo "Install: corepack enable && corepack prepare pnpm@latest --activate"
+    exit 1
   fi
-  npm run build:prod
+  if [[ -f pnpm-lock.yaml ]]; then
+    pnpm install --frozen-lockfile
+  else
+    pnpm install
+  fi
+  pnpm run build:prod
 
   mkdir -p "${WWW_ROOT}"
   rsync -av --delete "${FRONTEND_REPO}/dist/" "${WWW_ROOT}/"

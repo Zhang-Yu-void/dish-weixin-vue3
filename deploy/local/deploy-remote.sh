@@ -3,8 +3,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FRONTEND_REPO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-ENV_FILE="${ENV_FILE:-${FRONTEND_REPO}/.env.prod}"
+LOCAL_REPO="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ENV_FILE="${ENV_FILE:-${LOCAL_REPO}/.env.prod}"
 
 if [[ -f "${ENV_FILE}" ]]; then
   set -a
@@ -17,7 +17,8 @@ SSH_HOST="${SSH_HOST:-aliyun}"
 WWW_ROOT="${WWW_ROOT:-/data/ruoyi/www}"
 REMOTE_ENV_FILE="${REMOTE_ENV_FILE:-/data/ruoyi/.env.frontend.prod}"
 REMOTE_DEPLOY_DIR="${REMOTE_DEPLOY_DIR:-/data/ruoyi/deploy}"
-DIST_LOCAL="${DIST_DIR:-${FRONTEND_REPO}/dist}"
+# Use LOCAL_REPO, not FRONTEND_REPO from .env.prod (that variable is the remote git URL).
+DIST_LOCAL="${DIST_DIR:-${LOCAL_REPO}/dist}"
 NGINX_PORT="${NGINX_PORT:-8080}"
 
 if [[ -z "${SSH_HOST}" ]]; then
@@ -31,8 +32,8 @@ echo ">>> Upload frontend dist to ${SSH_HOST}:${WWW_ROOT} ..."
 ssh "${SSH_HOST}" "mkdir -p '${WWW_ROOT}' '${REMOTE_DEPLOY_DIR}'"
 rsync -avz --delete "${DIST_LOCAL}/" "${SSH_HOST}:${WWW_ROOT}/"
 scp "${ENV_FILE}" "${SSH_HOST}:${REMOTE_ENV_FILE}"
-scp "${FRONTEND_REPO}/deploy/nginx/ruoyi.conf" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/ruoyi.conf"
-scp "${FRONTEND_REPO}/deploy/direct/publish-static.sh" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/publish-static.sh"
+scp "${LOCAL_REPO}/deploy/nginx/ruoyi.conf" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/ruoyi.conf"
+scp "${LOCAL_REPO}/deploy/direct/publish-static.sh" "${SSH_HOST}:${REMOTE_DEPLOY_DIR}/publish-static.sh"
 
 echo ">>> Reload Nginx on server ..."
 ssh "${SSH_HOST}" bash -s <<EOF

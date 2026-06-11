@@ -17,7 +17,7 @@ check_version() {
 
 MISSING=0
 check_version "node" node -version || MISSING=1
-check_version "npm" npm -version || MISSING=1
+check_version "pnpm" pnpm -version || MISSING=1
 check_version "nginx" nginx -v || MISSING=1
 
 echo
